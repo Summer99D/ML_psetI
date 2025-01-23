@@ -1,0 +1,492 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: \"Pset 1\"\n",
+        "author: \"Summer Negahdar\"\n",
+        "date: \"01-23-2025\"\n",
+        "output: \"pdf\"\n",
+        "---\n",
+        "\n",
+        "\n",
+        "## Question 1\n",
+        "### a.\n",
+        "![Typical Flexibility-MSE Model](Q1A.png)\n",
+        "\n",
+        "I used the first sample we had on lecture slides 2 but in general bias, variance have smaller MSE than test MSE but they behave differently based on the model fit we have. \n",
+        "\n",
+        "### b. \n",
+        "\n",
+        "1. Irreducable error: is the noise from our actual data and has nothing to do with our model. this is usually due to mearurments error (in X or Y)\n",
+        "\n",
+        "2. Training Error:usually as we increase flexibility on our training data, the training MSE decreases as our model now can regress our data and correlation better. \n",
+        "\n",
+        "3. Testing Error: test error usually has U shape and its minimum is closest to Bayes error, which means in the ideal flexibilty, our model predict the test data as close as possible to the actual data (that has only bates error) but then it usually increases as we get higher flexibility due to overfitting. (like the dip in the income-education seniority model where at the end of seniority and education we suddenly had a dip)\n",
+        "\n",
+        "4. Bias: the correlation between an outcome and certain data points is barely correlevant with only one variable therefore less flexible models like OLS cannot capture the true underlying relation, which means they are biased. this implies that by increasing flexbility, the complex relation between X(s) and Y can be captured in our model, resulting in less bias. \n",
+        "\n",
+        "5. Variance: raising flexibnility usually means we add more variables into our model and therefore we are increasing the variance of our data. \n",
+        "\n",
+        "\n",
+        "## Question 2\n",
+        "\n",
+        "when we are ocmparing more vs. less flexible models there are first two things we need to consider: interpretability vs. flexibility.\n",
+        "simple models (less flexible) have better interpretation power while the more complex models are flexible with more variant Ys\n",
+        "\n",
+        "second thing to consider is Bias vs. Variance of the model. very fleixble models work extremely well in increasing variance of Y and decreasing bias while simple models (OLS for example) gives a more general interpretation (less variance and more bias) we are talking about under vs. overfitting here!\n",
+        "overfitting occurs when model fits the training/current data well but is poor in predicting out-of-sample data\n",
+        "on the other hand  the model might be too flexible for the in-sample data which also is not ideal.\n",
+        "\n",
+        "still, when we compare two different models (OLS and KNN) it all depends on our data which model we need to choose and how flexible it should be. \n",
+        "when we raise number of predictors the error terms also increase for KNN (very fast and exponentioanlly) while the MSE does not change much for OLS . In fact KNN helps us pick the number of predictors wisely\n",
+        "\n",
+        "if we have a large, complex data, or having accuracy is very crucial (like predicting movement patter of storms), as well as availability of enough number of predictors, then we shall use more flexible models. but using them on small dataset, with limited number of predictors will probably only raise noise instead of signlas.\n",
+        "\n",
+        "\n",
+        "## Question 3\n",
+        "\n",
+        "### a. \n"
+      ],
+      "id": "e8694811"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "import altair as alt\n",
+        "import seaborn as sns\n",
+        "import scipy\n",
+        "import itertools\n",
+        "\n",
+        "boston_df= pd.read_csv('Boston.csv')"
+      ],
+      "id": "dee6544f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### b.\n"
+      ],
+      "id": "82c8d388"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "print(\"there are\",len(boston_df), \"rows in this dataset\")\n",
+        "col_num= boston_df.shape[1]\n",
+        "print(\"there are\", col_num, \"columns in this dataset\")\n",
+        "\n",
+        "boston_df[\"MDEV\"]=pd.to_numeric(boston_df['MDEV'], errors= 'coerce')\n",
+        "boston_df['TAX']= pd.to_numeric(boston_df['TAX'], errors='coerce')"
+      ],
+      "id": "565a1061",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "the dataset is about the housing prices and the demand for clean air. \n",
+        "\n",
+        "columns include:\n",
+        "\n",
+        "CRIM     per capita crime rate by town\n",
+        " ZN       proportion of residential land zoned for lots over 25,000 sq.ft.\n",
+        " INDUS    proportion of non-retail business acres per town\n",
+        " CHAS     Charles River dummy variable (= 1 if tract bounds river; 0 otherwise)\n",
+        " NOX      nitric oxides concentration (parts per 10 million)\n",
+        " RM       average number of rooms per dwelling\n",
+        " AGE      proportion of owner-occupied units built prior to 1940\n",
+        " DIS      weighted distances to five Boston employment centres\n",
+        " RAD      index of accessibility to radial highways\n",
+        " TAX      full-value property-tax rate per $10,000\n",
+        " PTRATIO  pupil-teacher ratio by town\n",
+        " B        1000(Bk - 0.63)^2 where Bk is the proportion of blacks by town\n",
+        " LSTAT    % lower status of the population\n",
+        "MEDV     Median value of owner-occupied homes in $1000\\'s\n",
+        "\n",
+        "\n",
+        "### c.\n",
+        "** DESCRIBE FINDINGS\n",
+        "I will be plotting all possible pairs\n"
+      ],
+      "id": "046f4d06"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "md-indent": " "
+      },
+      "source": [
+        "#I will use a function from seaborn that plots everything against each other!\n",
+        "sns.pairplot(boston_df)"
+      ],
+      "id": "5c1fc678",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "1-DIS~NOX\n",
+        "\n",
+        "one correlation is the correlation between DIS and NOX which is a  negative quadratic correlation. this implies the level of Nitric Oxide deacreases substantially as the weighted distance from employment centers increases (which makes sense) which means the further these houses are from city-centers or corporate hubs, the less polluted they are!\n",
+        "\n",
+        "2-RM~ MDEV\n",
+        "\n",
+        "there is a positive linear relationship between median value and number of dwelling rooms, meaning the more rooms a house house, higher in value it is on average!\n",
+        "\n",
+        "\n",
+        "3-DIS~ AGE\n",
+        "\n",
+        "There was nearly a negative linear relationship between the age of the building/unit and its weighted distance from corporate centers. This suggests that as you move closer to these areas, the units/houses tend to be newer. This could imply that these corporate centers were established more recently (compared to 1940), and the influx of working populations in their proximity has prompted the city to develop housing closer to employment hubs.\n",
+        "\n",
+        "4-AGE~ NOX\n",
+        "the shape for these two parameters is the opposite of DIS~ NOX, quadratic but concave. this implies that older a house, the more NOX concentration in the air. it can be due to the age of the houses and the materials used in them(which are now mostly known to be toxic) but it is in contrast with the fact that the closer you get to business areas, the more NOx there is in the air while the previous plots suggested that newer homes are close to these neighborhoods. \n",
+        "(we can go further and propose that the NOX in the air has nothing to do with the age of the buildings and the source should be all the industrialization of the city and usage of cars)\n",
+        "\n",
+        "5-MDEV~LSTAT\n",
+        "This plot exhibits a sharp convex shape, suggesting that as the percentage of lower-status individuals in the population increases, the median value decreases. This could be interpreted as: neighborhoods with a higher percentage of lower-class population tend to have lower median house values, or in other words, houses in areas with a larger lower-income population are valued lower.\n",
+        "\n",
+        "### d.\n"
+      ],
+      "id": "5ff19618"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import matplotlib.pyplot as plt\n",
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "\n",
+        "##there are some outliers in crime column so I will use log for it!\n",
+        "\n",
+        "# Get the list of columns in the DataFrame\n",
+        "columns = boston_df.columns\n",
+        "\n",
+        "# Set up the 2x2 grid (or modify this based on how many plots you want to show)\n",
+        "fig, axes = plt.subplots(5, 3, figsize=(12, 10))\n",
+        "\n",
+        "# Flatten the axes array for easier iteration\n",
+        "axes = axes.flatten()\n",
+        "\n",
+        "# Create scatter plots of CRIM against each of the other columns\n",
+        "plot_index = 0\n",
+        "for column in columns:\n",
+        "    if column != 'CRIM':  # Skip the 'CRIM' column for the y-axis\n",
+        "        # Create scatter plot in the current subplot\n",
+        "        axes[plot_index].scatter(np.log(boston_df['CRIM'] +1), boston_df[column], alpha=0.6)\n",
+        "        axes[plot_index].set_title(f'Scatterplot of CRIM vs {column}')\n",
+        "        axes[plot_index].set_xlabel('CRIM')\n",
+        "        axes[plot_index].set_ylabel(column)\n",
+        "        axes[plot_index].grid(True)\n",
+        "\n",
+        "        # Set x-ticks to show every 5 units\n",
+        "        max_crim = np.log(boston_df['CRIM'] + 1).max()\n",
+        "        step = 5\n",
+        "        axes[plot_index].set_xticks(range(0, int(max_crim) + step, step))\n",
+        "        # Rotate the x-axis labels by 90 degrees\n",
+        "        axes[plot_index].tick_params(axis='x', rotation=90)\n",
+        "\n",
+        "        \n",
+        "        plot_index += 1\n",
+        "\n",
+        "for i in range(plot_index, len(axes)):\n",
+        "    axes[i].axis('off')\n",
+        "\n",
+        "# Adjust the layout to prevent clipping of axis labels and titles\n",
+        "plt.tight_layout(pad=2.0)\n",
+        "plt.show()"
+      ],
+      "id": "95389696",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "we can see a significant correlation between crime and these variables: NOx, RM,AGE, DIS, LSTAT, MDEV\n",
+        "\n",
+        "CRIM~ NOX: there is a linear positive correlation between crime and NOX concentration which means the more polluted the air in a town the per capita crime for that town the higher. \n",
+        "\n",
+        "CRIM~RM: there is a slightly downward facing linear relationship between number of rooms and crime per capita. this means that more crime takes place in towns with smaller houses ( if we talk about RM~ MDEV and MDEV~LSTAT from last question it can be interpreted that crimes is giher in towns with smaller houses cause the % of lower status people is higher in that area, thus more thiefs might be present)\n",
+        "\n",
+        "CRIM ~ AGE :the per capita of crime in town is has a quadratic upward facing shape which means the crime rate increases exponentially as the houses become older. (maybe because older houses are less safe or located in lower income neighborhoods)\n",
+        "\n",
+        "CRIM~DIS: as the wighted distance from business areas incrase the crime rate drops. this could be due to the fact that there is not much incentives for crimes in smaller or non-corporate areas. (for example compare crime rate in chicago vs. lincoln park or champagne)\n",
+        "\n",
+        "CRIM~LSTAT: the relationship between craime rate and percentage of lower-class population is linear and positive. this indicates that the higher the portion of lower class in a population of town the higher the crime rate per capita in that place!\n",
+        "\n",
+        "CRIM~ MDEV: almost linear and downwaard facing trend, suggesting median value decreases with the increaing crime rate!\n",
+        "\n",
+        "### e.\n"
+      ],
+      "id": "705b7f36"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# I will take a look at the details of CRIM, TAX and PTRATIO\n",
+        "print(boston_df[['TAX', 'CRIM', 'PTRATIO']].describe())"
+      ],
+      "id": "57d36cdb",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "a variable would be considered an outlier if it is 1.5 stds away from 75% quartile. we don't see such a thing in neither tax nor P-T ratio but when it comes to crime, there are indeed outliers. (which is why I used log() in the previous question)\n",
+        "\n",
+        "\n",
+        "### f.\n"
+      ],
+      "id": "8a6f143c"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "##this means all the rows where the value for \"CHAS\" column equals 1\n",
+        "bound_CH= (boston_df['CHAS']==1).sum()\n",
+        "print(bound_CH, \"cencus tracts bound to charles river\")"
+      ],
+      "id": "6c4a55ca",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### g.\n"
+      ],
+      "id": "56091cc7"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "Pt_ratio= (boston_df['PTRATIO']).median()\n",
+        "print(f\"the median Pupil to tracher ratio in the census is {Pt_ratio}\")"
+      ],
+      "id": "d9a540c2",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### h.\n"
+      ],
+      "id": "8e6996c7"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Get the index of the row with the smallest MDEV value\n",
+        "min_mdev_index = boston_df['MDEV'].idxmin()\n",
+        "\n",
+        "# Get all values for that row\n",
+        "row_with_min_mdev = boston_df.loc[min_mdev_index]\n",
+        "\n",
+        "print(row_with_min_mdev)"
+      ],
+      "id": "c5b43c30",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "##I will also take a look at overall statistical summary to be able to compare the values for this variable with them\n",
+        "print(boston_df.describe())"
+      ],
+      "id": "477297d4",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "1.\tCRIM = 38.35: The crime per capita for this neighborhood is significantly higher than the average crime rate of 3.59. This indicates that the area has a **high crime rate** compared to most other neighborhoods in the dataset.\n",
+        "\n",
+        "2.\tZN =0: There’s no land zoned for large residential lots, which is much **lower than the average** of 11.36. This likely means that the neighborhood is very **urban**, with dense housing.\n",
+        "\n",
+        "3.\tINDUS = 18.1: The proportion of land used for industrial purposes is much **higher than the average** of 11.14. This suggests the neighborhood is probably located near an industrial area.\n",
+        "\t\n",
+        "4.\tCHAS= 0: The neighborhood is not near the Charles River.\n",
+        "\n",
+        "5.\tNOX = 0.7: The level of nitrogen oxides in the air here is **higher than the average (0.55), but still not extreme(0.87)**.so the air quality is somewhat worse than other neighborhoods in the dataset, but it’s still not the most polluted area!\n",
+        "\n",
+        "6. RM = 5.4: The average number of rooms per house is 5.4, which is slightly **below the average of 6.3**. This suggests the homes here are relatively smaller, which makes sense considering the relationship between number of rooms and median value!\n",
+        "\n",
+        "7.\tAGE = 100: The fact that **all** the houses in this neighborhood were built before 1940 (100% compared to the average of 68%) suggests that the area is REALLY OLD!\n",
+        "\t\n",
+        "8.\tDIS = 1.5: The weighted distance to employment centers here is 1.5, which is much **lower than the average of 3.8**. This suggests that the neighborhood is quite far from major business districts, making it more rural ans secluded\n",
+        "\n",
+        "9.\tRAD= 24 : The access to radial highways is **much higher than average**, at 24 compared to the mean of 9.55. This indicates that while the neighborhood is off-grid in terms of distance from business areas, it has excellent highway connectivity.\n",
+        "\n",
+        "10.\tTAX = 666.: The property tax rate here is **higher than the average of 408.2**, which suggests that despite being an affordable area in terms of home values, the tax burden is still substantial. \n",
+        "\n",
+        "11.\tPTRATIO = 20.2: The pupil-teacher ratio of 20.2 is slightly **higher than the average of 18.46**, indicating that the schools in this neighborhood are a bit more crowded, with fewer teachers per student.\n",
+        "\n",
+        "12.\tB = 396.9: The proportion of Black residents here is 396.9 (per 1,000 people), which is slightly **above the average** for the dataset compared to the mean of 356.7\n",
+        "\n",
+        "13.\tLSTAT = 30.6: The percentage of the population with lower status is 30.6%, which is much **higher than the average of 12.65%**. This indicates that this neighborhood has a larger proportion of lower-income residents, which aligns with the lower median home value. (but is interesting in terms of tax burden)\n",
+        "\t\n",
+        "14.\tMDEV =5: The median home value of $5k (compared to the average of $22.5k) is **extremely low**, which fits with the neighborhood being the cheapest in the dataset.\n",
+        "\n",
+        "### i.\n"
+      ],
+      "id": "2d79ca15"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "rooms_7= (boston_df['RM']>7).sum()\n",
+        "room_8=(boston_df['RM']>8).sum()\n",
+        "print(\"there are \", rooms_7,\"tracts with more than 7 rooms and\", room_8, \"tracts with more than 8 rooms\")\n",
+        "room_8_details= boston_df.loc[boston_df['RM']>8]\n",
+        "print(room_8_details.describe())"
+      ],
+      "id": "45761464",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "When comparing the summary of the dataset for houses with more than 8 rooms to the overall dataset, some notable differences emerge. Houses with more than 8 rooms tend to have **lower crime rates** with a mean of 0.72, compared to the overall dataset’s mean of 3.59. This suggests these neighborhoods are safer. Additionally, the nitrogen oxide concentration for these neighborhoods **relatively moderate** (mean = 0.54) compared to the overall dataset’s mean of 0.55, indicating slightly better air quality in these areas. \n",
+        "\n",
+        "while 68% of houses in the data set are built prior to 1940,71% of the houses with more than 8 rooms were built before cutoff, indicating the **number of older homes compared to the general dataset is more**. Other factors like pupil-teacher ratio (PTRATIO) is **smaller than average, suggesting less crowded classes**(16.4 vs. 18.5). tax rates also follows a **similar trend** (325 vs. 408). the proportion of lower-status residents is also almst 1/4th of average (3 vs. 12) while the distance to radial highways is smaller than average (7 vs. 9.5)\n",
+        "\n",
+        "these all make the neighborhoods with houses that have more than 8 rooms on average very family-friendly!\n",
+        "\n",
+        "\n",
+        "## Question 4\n",
+        "\n",
+        "### a.\n",
+        "\n",
+        "$\\hat{y} = \\hat{b}_0 + \\hat{b}_1 \\text{GPA} + \\hat{b}_2 \\text{IQ} + \\hat{b}_3 \\text{Level} + \\hat{b}_4 (\\text{GPA} \\times \\text{IQ}) + \\hat{b}_5 (\\text{GPA} \\times \\text{Level})$\n",
+        "\n",
+        "$\\hat{y} = 50 + 20 \\times \\text{GPA} + 0.07 \\times \\text{IQ} + 35 \\times \\text{Level} + 0.01 \\times (\\text{GPA} \\times \\text{IQ}) + -10 \\times (\\text{GPA} \\times \\text{Level})$\n",
+        "\n",
+        "For a fixed value of IQ and GPA, high school graduates earn more, on average,\n",
+        "than college graduates>> for college graduates we will have the $\\text{level}$ equalling 1, therefore final amount of the expression would be $\\hat{b}_3$ which is equal to 35, BUT the last expression also relies on the input for level. for college students $-10 \\times \\text{GPA}$ will be decuted considering all else fixed while for high schoolers the whole expression $-10 \\times (\\text{GPA} \\times \\text{Level})$ will drop. the highest amount for GPA is 4, which means if the college students have 4/4 GPA, then their baseline salary, considering all else fix would be 50+35- 10 * $ which equals 45, while this amount for high schoolers would be 50 + 0 + 0. therefore **iii** is the correct option!\n",
+        "\n",
+        "\n",
+        "### b.\n",
+        "\n",
+        "college grad\n",
+        "IQ=100\n",
+        "GPA=4\n"
+      ],
+      "id": "3e3e9c1a"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "salary= 50 + 20*(4) +0.07*(110) +35*(1) + 0.01*(4*110) -10*(4*1)\n",
+        "print(\"The starting salary for a college graduate with a GPA of 4.0 and IQ at 110 would be\", salary, \"thousand dollars\")"
+      ],
+      "id": "417a5e89",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### c.\n",
+        "False, we cannot talk about the effect of coefficients unless we are given the standard error, P-value or T-stats. the absolute number of the coefficient by itself does not have any meaning or explanation about the significance. \n",
+        "\n",
+        "## Question 5\n",
+        "\n",
+        "### a. \n"
+      ],
+      "id": "afad99e6"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import statsmodels.api as sm\n",
+        "\n",
+        "# I will first create an empty list to store significant predictors\n",
+        "significant_relation_w_crime = []\n",
+        "\n",
+        "# Define the list of predictors (columns you want to check, excluding 'CRIM')\n",
+        "predictors = boston_df.columns\n",
+        "\n",
+        "# Now I will write a loop that goes over all predictors and runs a regression with that variable and \"CRIM\"\n",
+        "# Then it checks the p-value of the coefficient, and if it is significant at the 5% level, it adds it to our list\n",
+        "for predictor in predictors:\n",
+        "\n",
+        "    X = boston_df[[predictor]]\n",
+        "    y = boston_df['CRIM']\n",
+        "    \n",
+        "    # Add constant for intercept\n",
+        "    X = sm.add_constant(X)\n",
+        "    \n",
+        "    # Fit the linear model\n",
+        "    model = sm.OLS(y, X).fit()\n",
+        "    \n",
+        "    # Get the p-value for the predictor's coefficient\n",
+        "    p_value = model.pvalues[predictor]\n",
+        "    \n",
+        "    # If p-value is less than 0.05 (significant at 5%)\n",
+        "    if p_value < 0.05:\n",
+        "        significant_relation_w_crime.append(predictor)\n",
+        "\n",
+        "# Print the significant predictors\n",
+        "print(\"Significant predictors with CRIM at the 5% level are\", significant_relation_w_crime)"
+      ],
+      "id": "6918a9d5",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "b.\n",
+        "c.\n",
+        "d.\n"
+      ],
+      "id": "ef91608b"
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "envp2",
+      "language": "python",
+      "display_name": "Python (envp2)",
+      "path": "/Users/samarnegahdar/Library/Jupyter/kernels/envp2"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}
