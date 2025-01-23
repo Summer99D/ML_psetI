@@ -50,7 +50,7 @@
         "\n",
         "### a. \n"
       ],
-      "id": "e8694811"
+      "id": "9208a406"
     },
     {
       "cell_type": "code",
@@ -65,7 +65,7 @@
         "\n",
         "boston_df= pd.read_csv('Boston.csv')"
       ],
-      "id": "dee6544f",
+      "id": "38d95173",
       "execution_count": null,
       "outputs": []
     },
@@ -75,7 +75,7 @@
       "source": [
         "### b.\n"
       ],
-      "id": "82c8d388"
+      "id": "460aab4a"
     },
     {
       "cell_type": "code",
@@ -88,7 +88,7 @@
         "boston_df[\"MDEV\"]=pd.to_numeric(boston_df['MDEV'], errors= 'coerce')\n",
         "boston_df['TAX']= pd.to_numeric(boston_df['TAX'], errors='coerce')"
       ],
-      "id": "565a1061",
+      "id": "31d7f256",
       "execution_count": null,
       "outputs": []
     },
@@ -120,7 +120,7 @@
         "** DESCRIBE FINDINGS\n",
         "I will be plotting all possible pairs\n"
       ],
-      "id": "046f4d06"
+      "id": "a16f66ba"
     },
     {
       "cell_type": "code",
@@ -131,7 +131,7 @@
         "#I will use a function from seaborn that plots everything against each other!\n",
         "sns.pairplot(boston_df)"
       ],
-      "id": "5c1fc678",
+      "id": "7bb8fd95",
       "execution_count": null,
       "outputs": []
     },
@@ -161,7 +161,7 @@
         "\n",
         "### d.\n"
       ],
-      "id": "5ff19618"
+      "id": "d16a79b2"
     },
     {
       "cell_type": "code",
@@ -210,7 +210,7 @@
         "plt.tight_layout(pad=2.0)\n",
         "plt.show()"
       ],
-      "id": "95389696",
+      "id": "998e48f1",
       "execution_count": null,
       "outputs": []
     },
@@ -234,7 +234,7 @@
         "\n",
         "### e.\n"
       ],
-      "id": "705b7f36"
+      "id": "c5a5e637"
     },
     {
       "cell_type": "code",
@@ -243,7 +243,7 @@
         "# I will take a look at the details of CRIM, TAX and PTRATIO\n",
         "print(boston_df[['TAX', 'CRIM', 'PTRATIO']].describe())"
       ],
-      "id": "57d36cdb",
+      "id": "417dc7e7",
       "execution_count": null,
       "outputs": []
     },
@@ -256,7 +256,7 @@
         "\n",
         "### f.\n"
       ],
-      "id": "8a6f143c"
+      "id": "298bde9d"
     },
     {
       "cell_type": "code",
@@ -266,7 +266,7 @@
         "bound_CH= (boston_df['CHAS']==1).sum()\n",
         "print(bound_CH, \"cencus tracts bound to charles river\")"
       ],
-      "id": "6c4a55ca",
+      "id": "433bc001",
       "execution_count": null,
       "outputs": []
     },
@@ -276,7 +276,7 @@
       "source": [
         "### g.\n"
       ],
-      "id": "56091cc7"
+      "id": "7870ae15"
     },
     {
       "cell_type": "code",
@@ -285,7 +285,7 @@
         "Pt_ratio= (boston_df['PTRATIO']).median()\n",
         "print(f\"the median Pupil to tracher ratio in the census is {Pt_ratio}\")"
       ],
-      "id": "d9a540c2",
+      "id": "45760943",
       "execution_count": null,
       "outputs": []
     },
@@ -295,7 +295,7 @@
       "source": [
         "### h.\n"
       ],
-      "id": "8e6996c7"
+      "id": "bec90b08"
     },
     {
       "cell_type": "code",
@@ -309,7 +309,7 @@
         "\n",
         "print(row_with_min_mdev)"
       ],
-      "id": "c5b43c30",
+      "id": "d0de5cea",
       "execution_count": null,
       "outputs": []
     },
@@ -320,7 +320,7 @@
         "##I will also take a look at overall statistical summary to be able to compare the values for this variable with them\n",
         "print(boston_df.describe())"
       ],
-      "id": "477297d4",
+      "id": "8bd7cc88",
       "execution_count": null,
       "outputs": []
     },
@@ -358,7 +358,7 @@
         "\n",
         "### i.\n"
       ],
-      "id": "2d79ca15"
+      "id": "4c78e716"
     },
     {
       "cell_type": "code",
@@ -370,7 +370,7 @@
         "room_8_details= boston_df.loc[boston_df['RM']>8]\n",
         "print(room_8_details.describe())"
       ],
-      "id": "45761464",
+      "id": "164cc760",
       "execution_count": null,
       "outputs": []
     },
@@ -403,7 +403,7 @@
         "IQ=100\n",
         "GPA=4\n"
       ],
-      "id": "3e3e9c1a"
+      "id": "58c0db9b"
     },
     {
       "cell_type": "code",
@@ -412,7 +412,7 @@
         "salary= 50 + 20*(4) +0.07*(110) +35*(1) + 0.01*(4*110) -10*(4*1)\n",
         "print(\"The starting salary for a college graduate with a GPA of 4.0 and IQ at 110 would be\", salary, \"thousand dollars\")"
       ],
-      "id": "417a5e89",
+      "id": "c11fd970",
       "execution_count": null,
       "outputs": []
     },
@@ -427,46 +427,7 @@
         "\n",
         "### a. \n"
       ],
-      "id": "afad99e6"
-    },
-    {
-      "cell_type": "code",
-      "metadata": {},
-      "source": [
-        "import statsmodels.api as sm\n",
-        "\n",
-        "# I will first create an empty list to store significant predictors\n",
-        "significant_relation_w_crime = []\n",
-        "\n",
-        "# Define the list of predictors (columns you want to check, excluding 'CRIM')\n",
-        "predictors = boston_df.columns\n",
-        "\n",
-        "# Now I will write a loop that goes over all predictors and runs a regression with that variable and \"CRIM\"\n",
-        "# Then it checks the p-value of the coefficient, and if it is significant at the 5% level, it adds it to our list\n",
-        "for predictor in predictors:\n",
-        "\n",
-        "    X = boston_df[[predictor]]\n",
-        "    y = boston_df['CRIM']\n",
-        "    \n",
-        "    # Add constant for intercept\n",
-        "    X = sm.add_constant(X)\n",
-        "    \n",
-        "    # Fit the linear model\n",
-        "    model = sm.OLS(y, X).fit()\n",
-        "    \n",
-        "    # Get the p-value for the predictor's coefficient\n",
-        "    p_value = model.pvalues[predictor]\n",
-        "    \n",
-        "    # If p-value is less than 0.05 (significant at 5%)\n",
-        "    if p_value < 0.05:\n",
-        "        significant_relation_w_crime.append(predictor)\n",
-        "\n",
-        "# Print the significant predictors\n",
-        "print(\"Significant predictors with CRIM at the 5% level are\", significant_relation_w_crime)"
-      ],
-      "id": "6918a9d5",
-      "execution_count": null,
-      "outputs": []
+      "id": "856f5da6"
     },
     {
       "cell_type": "markdown",
@@ -476,7 +437,7 @@
         "c.\n",
         "d.\n"
       ],
-      "id": "ef91608b"
+      "id": "2875a155"
     }
   ],
   "metadata": {

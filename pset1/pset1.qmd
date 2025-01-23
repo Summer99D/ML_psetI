@@ -294,36 +294,6 @@ False, we cannot talk about the effect of coefficients unless we are given the s
 ### a. 
 
 ```{python}
-import statsmodels.api as sm
-
-# I will first create an empty list to store significant predictors
-significant_relation_w_crime = []
-
-# Define the list of predictors (columns you want to check, excluding 'CRIM')
-predictors = boston_df.columns
-
-# Now I will write a loop that goes over all predictors and runs a regression with that variable and "CRIM"
-# Then it checks the p-value of the coefficient, and if it is significant at the 5% level, it adds it to our list
-for predictor in predictors:
-
-    X = boston_df[[predictor]]
-    y = boston_df['CRIM']
-    
-    # Add constant for intercept
-    X = sm.add_constant(X)
-    
-    # Fit the linear model
-    model = sm.OLS(y, X).fit()
-    
-    # Get the p-value for the predictor's coefficient
-    p_value = model.pvalues[predictor]
-    
-    # If p-value is less than 0.05 (significant at 5%)
-    if p_value < 0.05:
-        significant_relation_w_crime.append(predictor)
-
-# Print the significant predictors
-print("Significant predictors with CRIM at the 5% level are", significant_relation_w_crime)
 
 ```
 
